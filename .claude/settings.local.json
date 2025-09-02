@@ -7,7 +7,8 @@
       "Read(C:\\Users\\pablo\\Desktop\\Potteryclasses/**)",
       "Read(C:\\Users\\pablo\\Downloads/**)",
       "Read(C:\\Users\\pablo\\Downloads/**)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
