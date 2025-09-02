@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(C:\\Users\\pablo\\Desktop\\Potteryclasses/**)",
+      "Read(C:\\Users\\pablo\\Desktop\\Potteryclasses/**)",
+      "Bash(npm run dev:*)",
+      "Read(C:\\Users\\pablo\\Desktop\\Potteryclasses/**)",
+      "Read(C:\\Users\\pablo\\Downloads/**)",
+      "Read(C:\\Users\\pablo\\Downloads/**)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

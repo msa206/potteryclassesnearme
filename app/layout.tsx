@@ -55,11 +55,11 @@ export default function RootLayout({
                 Pottery Classes
               </Link>
               <div className="flex gap-6">
-                <Link href="/pottery-classes" className="text-teal hover:text-clay transition-colors">
-                  Browse Classes
+                <Link href="/" className="text-teal hover:text-clay transition-colors">
+                  Home
                 </Link>
                 <Link href="/search" className="text-teal hover:text-clay transition-colors">
-                  Search
+                  Search Pottery Classes
                 </Link>
               </div>
             </div>
@@ -97,17 +97,17 @@ export default function RootLayout({
                 <h3 className="font-semibold mb-3">Popular Cities</h3>
                 <ul className="space-y-2 text-sm">
                   <li>
-                    <Link href="/pottery-classes/miami" className="text-white/80 hover:text-white">
+                    <Link href="/pottery-classes/fl/miami" className="text-white/80 hover:text-white">
                       Miami
                     </Link>
                   </li>
                   <li>
-                    <Link href="/pottery-classes/new-york-ny" className="text-white/80 hover:text-white">
+                    <Link href="/pottery-classes/ny/new-york-ny" className="text-white/80 hover:text-white">
                       New York
                     </Link>
                   </li>
                   <li>
-                    <Link href="/pottery-classes/los-angeles-ca" className="text-white/80 hover:text-white">
+                    <Link href="/pottery-classes/ca/los-angeles-ca" className="text-white/80 hover:text-white">
                       Los Angeles
                     </Link>
                   </li>

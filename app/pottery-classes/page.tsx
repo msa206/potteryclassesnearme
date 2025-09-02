@@ -1,7 +1,10 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabaseStatic } from '@/lib/db'
+import { slugify, getStateSlug } from '@/lib/slugify'
 import Button from '@/components/Button'
+import HomepageSearch from '@/components/HomepageSearch'
 
 export const dynamic = 'force-static'
 export const revalidate = 86400 // 24h ISR
@@ -19,91 +22,193 @@ export const metadata: Metadata = {
 export default async function PotteryClassesHub() {
   const supabase = supabaseStatic()
   
-  // Get featured cities with most providers
-  const { data: citiesData, error: citiesError } = await supabase
-    .from('cities')
-    .select('slug, city, state')
-    .order('city')
-    .limit(16)
+  // Get all providers to extract unique cities and states
+  const { data: providersData, error: providersError } = await supabase
+    .from('providers_raw')
+    .select('city, state')
   
-  const featuredCities = citiesData as Array<{ slug: string; city: string; state: string }> | null
+  // Debug logging
+  console.log('Providers data count:', providersData?.length || 0)
+  if (providersError) {
+    console.error('Providers error:', providersError)
+  }
+  
+  // Create unique cities list with state info and count providers
+  const citiesMap = new Map()
+  providersData?.forEach(p => {
+    if (p.city && p.state) {
+      const citySlug = slugify(p.city)
+      const stateSlug = getStateSlug(p.state)
+      const cityKey = `${citySlug}-${stateSlug}` // Unique key for each city-state combo
+      
+      if (!citiesMap.has(cityKey)) {
+        citiesMap.set(cityKey, {
+          city: p.city,
+          state: p.state,
+          city_slug: citySlug,
+          state_slug: stateSlug,
+          slug: citySlug, // for compatibility
+          provider_count: 1
+        })
+      } else {
+        const cityData = citiesMap.get(cityKey)
+        cityData.provider_count++
+      }
+    }
+  })
+  
+  console.log('Cities found:', citiesMap.size)
+  
+  // Get featured cities (top 16 by provider count)
+  const featuredCities = Array.from(citiesMap.values())
+    .sort((a, b) => b.provider_count - a.provider_count)
+    .slice(0, 16)
 
-  // Get states with pottery classes
-  const { data: statesData, error: statesError } = await supabase
-    .from('cities')
-    .select('state, state_slug')
-    .order('state')
+  // Create unique states list with provider counts
+  const statesMap = new Map()
+  providersData?.forEach(p => {
+    if (p.state) {
+      const stateSlug = getStateSlug(p.state)
+      if (!statesMap.has(stateSlug)) {
+        statesMap.set(stateSlug, {
+          state: p.state,
+          state_slug: stateSlug,
+          provider_count: 1
+        })
+      } else {
+        const stateData = statesMap.get(stateSlug)
+        stateData.provider_count++
+      }
+    }
+  })
   
-  // Log errors for debugging
-  if (citiesError) {
-    console.error('Error fetching cities:', citiesError)
-  }
-  if (statesError) {
-    console.error('Error fetching states:', statesError)
-  }
+  console.log('States found:', statesMap.size)
   
-  const states = statesData as Array<{ state: string; state_slug: string }> | null
+  // Get all unique states from providers
+  const uniqueStates = Array.from(statesMap.values())
+    .sort((a, b) => a.state.localeCompare(b.state))
   
-  // Deduplicate states
-  const uniqueStates = states ? Array.from(new Set(states.map(s => s.state))).map(state => {
-    const stateData = states.find(s => s.state === state)
-    return { state, state_slug: stateData?.state_slug }
-  }) : []
+  // Define all US states with their abbreviations
+  const allStates = [
+    { state: 'Alabama', state_slug: 'al' },
+    { state: 'Alaska', state_slug: 'ak' },
+    { state: 'Arizona', state_slug: 'az' },
+    { state: 'Arkansas', state_slug: 'ar' },
+    { state: 'California', state_slug: 'ca' },
+    { state: 'Colorado', state_slug: 'co' },
+    { state: 'Connecticut', state_slug: 'ct' },
+    { state: 'Delaware', state_slug: 'de' },
+    { state: 'Florida', state_slug: 'fl' },
+    { state: 'Georgia', state_slug: 'ga' },
+    { state: 'Hawaii', state_slug: 'hi' },
+    { state: 'Idaho', state_slug: 'id' },
+    { state: 'Illinois', state_slug: 'il' },
+    { state: 'Indiana', state_slug: 'in' },
+    { state: 'Iowa', state_slug: 'ia' },
+    { state: 'Kansas', state_slug: 'ks' },
+    { state: 'Kentucky', state_slug: 'ky' },
+    { state: 'Louisiana', state_slug: 'la' },
+    { state: 'Maine', state_slug: 'me' },
+    { state: 'Maryland', state_slug: 'md' },
+    { state: 'Massachusetts', state_slug: 'ma' },
+    { state: 'Michigan', state_slug: 'mi' },
+    { state: 'Minnesota', state_slug: 'mn' },
+    { state: 'Mississippi', state_slug: 'ms' },
+    { state: 'Missouri', state_slug: 'mo' },
+    { state: 'Montana', state_slug: 'mt' },
+    { state: 'Nebraska', state_slug: 'ne' },
+    { state: 'Nevada', state_slug: 'nv' },
+    { state: 'New Hampshire', state_slug: 'nh' },
+    { state: 'New Jersey', state_slug: 'nj' },
+    { state: 'New Mexico', state_slug: 'nm' },
+    { state: 'New York', state_slug: 'ny' },
+    { state: 'North Carolina', state_slug: 'nc' },
+    { state: 'North Dakota', state_slug: 'nd' },
+    { state: 'Ohio', state_slug: 'oh' },
+    { state: 'Oklahoma', state_slug: 'ok' },
+    { state: 'Oregon', state_slug: 'or' },
+    { state: 'Pennsylvania', state_slug: 'pa' },
+    { state: 'Rhode Island', state_slug: 'ri' },
+    { state: 'South Carolina', state_slug: 'sc' },
+    { state: 'South Dakota', state_slug: 'sd' },
+    { state: 'Tennessee', state_slug: 'tn' },
+    { state: 'Texas', state_slug: 'tx' },
+    { state: 'Utah', state_slug: 'ut' },
+    { state: 'Vermont', state_slug: 'vt' },
+    { state: 'Virginia', state_slug: 'va' },
+    { state: 'Washington', state_slug: 'wa' },
+    { state: 'West Virginia', state_slug: 'wv' },
+    { state: 'Wisconsin', state_slug: 'wi' },
+    { state: 'Wyoming', state_slug: 'wy' }
+  ]
+  
+  // Add provider counts to all states and sort by count (highest first)
+  const allStatesWithCounts = allStates.map(state => {
+    const stateData = statesMap.get(state.state_slug)
+    return {
+      ...state,
+      provider_count: stateData?.provider_count || 0
+    }
+  }).sort((a, b) => {
+    // Sort by provider count (descending), then alphabetically
+    if (b.provider_count !== a.provider_count) {
+      return b.provider_count - a.provider_count
+    }
+    return a.state.localeCompare(b.state)
+  })
 
   return (
     <main className="min-h-screen bg-porcelain">
-      {/* Hero Section with Better Design */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-clay/10 via-porcelain to-teal/10 py-24">
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-clay/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal/5 rounded-full blur-3xl"></div>
+      {/* Hero Section with Image */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-clay/10 via-porcelain to-teal/10">
+        {/* Hero Image */}
+        <div className="relative w-full h-[500px] md:h-[600px] lg:h-[700px]">
+          <Image
+            src="/WomanlearningPottery.webp"
+            alt="Woman learning pottery on a wheel"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+          {/* Overlay gradient for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60"></div>
+        </div>
         
-        <div className="relative mx-auto max-w-7xl px-4">
-          <div className="text-center">
-            <span className="inline-block px-4 py-2 mb-6 text-sm font-semibold text-clay bg-clay/10 rounded-full">
+        {/* Hero Content - Positioned over the image */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative mx-auto max-w-7xl px-4 text-center">
+            <span className="inline-block px-4 py-2 mb-6 text-sm font-semibold text-white bg-clay/60 backdrop-blur-sm rounded-full">
               Discover Local Pottery Studios
             </span>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-ink mb-6 leading-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
               Find <span className="text-transparent bg-clip-text bg-gradient-to-r from-clay to-teal">Pottery Classes</span> Near You
             </h1>
-            <p className="text-xl md:text-2xl text-ink/70 max-w-3xl mx-auto mb-12 leading-relaxed">
+            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto mb-12 leading-relaxed drop-shadow-md">
               Connect with ceramic studios, master wheel throwing, and unleash your creativity 
               in pottery workshops across the United States.
             </p>
             
             {/* Enhanced Search Form */}
             <div className="max-w-2xl mx-auto">
-              <form action="/search" method="GET" className="relative">
-                <div className="flex gap-3 p-2 bg-white rounded-2xl shadow-xl shadow-ink/10">
-                  <input
-                    type="text"
-                    name="location"
-                    placeholder="Enter city, state, or ZIP code..."
-                    className="flex-1 px-6 py-4 text-lg bg-transparent outline-none placeholder:text-ink/40"
-                    required
-                  />
-                  <Button type="submit" variant="primary" className="px-8 py-4 text-lg font-semibold rounded-xl">
-                    Search Classes
-                  </Button>
-                </div>
-              </form>
+              <HomepageSearch />
               
               {/* Quick Links */}
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <span className="text-sm text-ink/60">Popular searches:</span>
-                <Link href="/pottery-classes/new-york-ny" className="text-sm text-teal hover:text-clay transition-colors">
+                <span className="text-sm text-white/80">Popular searches:</span>
+                <Link href="/pottery-classes/ny/new-york" className="text-sm text-white hover:text-teal transition-colors underline">
                   New York
                 </Link>
-                <span className="text-ink/30">•</span>
-                <Link href="/pottery-classes/los-angeles-ca" className="text-sm text-teal hover:text-clay transition-colors">
+                <span className="text-white/60">•</span>
+                <Link href="/pottery-classes/ca/los-angeles" className="text-sm text-white hover:text-teal transition-colors underline">
                   Los Angeles
                 </Link>
-                <span className="text-ink/30">•</span>
-                <Link href="/pottery-classes/chicago-il" className="text-sm text-teal hover:text-clay transition-colors">
+                <span className="text-white/60">•</span>
+                <Link href="/pottery-classes/il/chicago" className="text-sm text-white hover:text-teal transition-colors underline">
                   Chicago
                 </Link>
-                <span className="text-ink/30">•</span>
-                <Link href="/pottery-classes/miami" className="text-sm text-teal hover:text-clay transition-colors">
+                <span className="text-white/60">•</span>
+                <Link href="/pottery-classes/fl/miami" className="text-sm text-white hover:text-teal transition-colors underline">
                   Miami
                 </Link>
               </div>
@@ -114,7 +219,7 @@ export default async function PotteryClassesHub() {
 
 
       {/* Featured Cities with Better Cards */}
-      <section className="py-20 bg-gradient-to-b from-white to-porcelain">
+      <section className="py-20 bg-gradient-to-b from-porcelain to-white">
         <div className="mx-auto max-w-7xl px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-ink mb-4">
@@ -129,7 +234,7 @@ export default async function PotteryClassesHub() {
             {featuredCities?.map((city) => (
               <Link 
                 key={city.slug}
-                href={`/pottery-classes/${city.slug}`}
+                href={`/pottery-classes/${city.state_slug}/${city.city_slug}`}
                 className="group"
               >
                 <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-sand/20">
@@ -142,6 +247,9 @@ export default async function PotteryClassesHub() {
                     </svg>
                   </div>
                   <span className="text-sm text-ink/50">{city.state}</span>
+                  <div className="mt-2 text-xs text-ink/60">
+                    {city.provider_count} {city.provider_count === 1 ? 'studio' : 'studios'}
+                  </div>
                 </div>
               </Link>
             ))}
@@ -236,57 +344,28 @@ export default async function PotteryClassesHub() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
-            {uniqueStates.slice(0, 24).map((state) => (
+            {allStatesWithCounts.map((state) => (
               <Link
                 key={state.state}
                 href={`/pottery-classes/state/${state.state_slug}`}
-                className="px-4 py-3 text-center bg-porcelain hover:bg-clay hover:text-white rounded-lg transition-all duration-200 font-medium text-ink"
+                className={`px-4 py-3 text-center rounded-lg transition-all duration-200 font-medium ${
+                  state.provider_count > 0 
+                    ? 'bg-porcelain hover:bg-clay hover:text-white text-ink' 
+                    : 'bg-gray-100 text-gray-400 cursor-pointer hover:bg-gray-200'
+                }`}
               >
                 {state.state}
+                {state.provider_count > 0 && (
+                  <span className="block text-xs opacity-70 mt-1">
+                    ({state.provider_count})
+                  </span>
+                )}
               </Link>
             ))}
           </div>
-          
-          {uniqueStates.length > 24 && (
-            <div className="text-center mt-8">
-              <details className="inline-block">
-                <summary className="cursor-pointer text-teal hover:text-clay transition-colors font-medium">
-                  Show all {uniqueStates.length} states
-                </summary>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-5xl mx-auto mt-4">
-                  {uniqueStates.slice(24).map((state) => (
-                    <Link
-                      key={state.state}
-                      href={`/pottery-classes/state/${state.state_slug}`}
-                      className="px-4 py-3 text-center bg-porcelain hover:bg-clay hover:text-white rounded-lg transition-all duration-200 font-medium text-ink"
-                    >
-                      {state.state}
-                    </Link>
-                  ))}
-                </div>
-              </details>
-            </div>
-          )}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-clay to-teal">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Start Your Pottery Journey?
-          </h2>
-          <p className="text-xl text-white/90 mb-8">
-            Find the perfect pottery class near you and begin creating today
-          </p>
-          <Link 
-            href="/search"
-            className="inline-block px-8 py-4 bg-white text-clay font-semibold rounded-xl hover:bg-porcelain transition-colors text-lg"
-          >
-            Find Classes Now
-          </Link>
-        </div>
-      </section>
     </main>
   )
 }

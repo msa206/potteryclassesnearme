@@ -2,8 +2,8 @@
 -- Run this after importing CSV data to providers_raw
 
 -- First, clear existing data to avoid duplicates (optional - comment out if you want to append)
--- TRUNCATE public.providers CASCADE;
--- TRUNCATE public.cities CASCADE;
+TRUNCATE public.providers CASCADE;
+TRUNCATE public.cities CASCADE;
 
 -- 1) Distinct cities with collision-aware slugs
 with dc as (

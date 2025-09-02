@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { supabaseStatic } from '@/lib/db'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
+import ZipSearch from '@/components/ZipSearch'
 
 export const metadata: Metadata = {
   title: 'Search Pottery Classes',
@@ -24,56 +25,52 @@ async function searchLocation(formData: FormData) {
   
   // Check if it's a ZIP code (5 digits)
   if (/^\d{5}$/.test(cleanLocation)) {
-    // Look up ZIP mapping
-    const zipResult = await supabase
-      .from('zip_mappings')
-      .select('city_slug')
-      .eq('zip', cleanLocation)
-      .single()
-    
-    const zipMapping = zipResult.data as { city_slug: string } | null
-    
-    if (zipMapping?.city_slug) {
-      redirect(`/pottery-classes/${zipMapping.city_slug}`)
-    }
-    
-    // Try to find providers with this ZIP
+    // Try to find providers with this ZIP in providers_raw
     const providerResult = await supabase
-      .from('providers')
-      .select('city_slug')
+      .from('providers_raw')
+      .select('city_slug, state_slug')
       .eq('zip', cleanLocation)
       .limit(1)
       .single()
     
-    const provider = providerResult.data as { city_slug: string } | null
+    const provider = providerResult.data as { city_slug: string; state_slug: string } | null
     
-    if (provider?.city_slug) {
-      redirect(`/pottery-classes/${provider.city_slug}`)
+    if (provider?.city_slug && provider?.state_slug) {
+      redirect(`/pottery-classes/${provider.state_slug}/${provider.city_slug}`)
     }
   }
   
-  // Try to match city name
+  // Try to match city name from providers_raw
   const citiesResult = await supabase
-    .from('cities')
-    .select('slug, city')
+    .from('providers_raw')
+    .select('city, state_slug, city_slug')
     .ilike('city', `%${cleanLocation}%`)
-    .limit(5)
   
-  const cities = citiesResult.data as Array<{ slug: string; city: string }> | null
+  const providers = citiesResult.data as Array<{ city: string; state_slug: string; city_slug: string }> | null
   
-  if (cities && cities.length === 1) {
-    // Exact match or single result
-    redirect(`/pottery-classes/${cities[0].slug}`)
+  // Deduplicate by city_slug
+  const uniqueCities = new Map()
+  providers?.forEach(p => {
+    if (p.city_slug && !uniqueCities.has(p.city_slug)) {
+      uniqueCities.set(p.city_slug, p)
+    }
+  })
+  
+  const cities = Array.from(uniqueCities.values())
+  
+  if (cities.length === 1) {
+    // Single city match
+    redirect(`/pottery-classes/${cities[0].state_slug}/${cities[0].city_slug}`)
   }
   
-  if (cities && cities.length > 1) {
+  if (cities.length > 1) {
     // Multiple matches - try to find exact match
     const exactMatch = cities.find(c => c.city.toLowerCase() === cleanLocation)
     if (exactMatch) {
-      redirect(`/pottery-classes/${exactMatch.slug}`)
+      redirect(`/pottery-classes/${exactMatch.state_slug}/${exactMatch.city_slug}`)
     }
     // Otherwise redirect to first match
-    redirect(`/pottery-classes/${cities[0].slug}`)
+    redirect(`/pottery-classes/${cities[0].state_slug}/${cities[0].city_slug}`)
   }
   
   // Try state search
@@ -96,16 +93,16 @@ async function searchLocation(formData: FormData) {
   const stateSlug = stateAbbreviations[cleanLocation] || cleanLocation
   if (stateSlug.length === 2) {
     // Check if this state exists
-    const stateCityResult = await supabase
-      .from('cities')
+    const stateResult = await supabase
+      .from('providers_raw')
       .select('state_slug')
       .eq('state_slug', stateSlug)
       .limit(1)
       .single()
     
-    const stateCity = stateCityResult.data as { state_slug: string } | null
+    const stateData = stateResult.data as { state_slug: string } | null
     
-    if (stateCity) {
+    if (stateData) {
       redirect(`/pottery-classes/state/${stateSlug}`)
     }
   }
@@ -114,7 +111,20 @@ async function searchLocation(formData: FormData) {
   redirect('/pottery-classes')
 }
 
-export default function SearchPage() {
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ location?: string }>
+}) {
+  const params = await searchParams;
+  
+  // If there's a location in the URL, perform the search immediately
+  if (params.location) {
+    const formData = new FormData()
+    formData.set('location', params.location)
+    await searchLocation(formData)
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-porcelain to-white">
       <div className="mx-auto max-w-2xl px-4 py-20">
@@ -122,20 +132,35 @@ export default function SearchPage() {
           Search for Pottery Classes
         </h1>
         
-        <form action={searchLocation} className="space-y-4">
-          <Input
-            name="location"
-            type="text"
-            placeholder="Enter city name or ZIP code..."
-            required
-            label="Location"
-            className="text-lg"
+        {/* City/State Search */}
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold text-ink mb-4">Search by City or State</h2>
+          <form action={searchLocation} className="space-y-4">
+            <Input
+              name="location"
+              type="text"
+              placeholder="Enter city name or state..."
+              required
+              label="Location"
+              className="text-lg"
+              defaultValue={params.location || ''}
+            />
+            
+            <Button type="submit" variant="primary">
+              Search by Location
+            </Button>
+          </form>
+        </div>
+
+        {/* ZIP Code Search */}
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold text-ink mb-4">Search by ZIP Code</h2>
+          <p className="text-ink/60 mb-4">Find pottery studios within a specific radius of your ZIP code.</p>
+          <ZipSearch 
+            defaultRadius={50}
+            initialZip={/^\d{5}$/.test(params.location || '') ? params.location : ''}
           />
-          
-          <Button type="submit" variant="primary">
-            Search Classes
-          </Button>
-        </form>
+        </div>
         
         <div className="mt-12 text-center">
           <p className="text-ink/70 mb-4">Or browse by location:</p>
