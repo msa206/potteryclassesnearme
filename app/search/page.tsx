@@ -2,14 +2,41 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { supabaseStatic } from '@/lib/db'
+import { slugify, getStateSlug } from '@/lib/slugify'
 import Button from '@/components/Button'
-import Input from '@/components/Input'
-import ZipSearch from '@/components/ZipSearch'
 
-export const metadata: Metadata = {
-  title: 'Search Pottery Classes',
-  description: 'Search for pottery classes by city or ZIP code',
-  robots: 'noindex, follow', // Search page should not be indexed
+export const dynamic = 'force-dynamic'
+
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const params = await searchParams
+  const zip = params.zip as string
+  const location = params.location as string
+  
+  if (zip) {
+    return {
+      title: `Pottery Classes near ${zip} | Search Results`,
+      description: `Find pottery studios and ceramic workshops near ZIP code ${zip}. Browse local classes for wheel throwing, hand-building, and glazing.`,
+      robots: 'noindex, follow',
+    }
+  }
+
+  if (location) {
+    return {
+      title: `Pottery Classes in ${location} | Search Results`,
+      description: `Find pottery studios and ceramic workshops in ${location}. Browse local classes for wheel throwing, hand-building, and glazing.`,
+      robots: 'noindex, follow',
+    }
+  }
+
+  return {
+    title: 'Search Pottery Classes',
+    description: 'Search for pottery classes by city or ZIP code',
+    robots: 'noindex, follow',
+  }
 }
 
 async function searchLocation(formData: FormData) {
@@ -25,19 +52,8 @@ async function searchLocation(formData: FormData) {
   
   // Check if it's a ZIP code (5 digits)
   if (/^\d{5}$/.test(cleanLocation)) {
-    // Try to find providers with this ZIP in providers_raw
-    const providerResult = await supabase
-      .from('providers_raw')
-      .select('city_slug, state_slug')
-      .eq('zip', cleanLocation)
-      .limit(1)
-      .single()
-    
-    const provider = providerResult.data as { city_slug: string; state_slug: string } | null
-    
-    if (provider?.city_slug && provider?.state_slug) {
-      redirect(`/pottery-classes/${provider.state_slug}/${provider.city_slug}`)
-    }
+    // Redirect to the ZIP search page with radius
+    redirect(`/pottery-classes/zip/${cleanLocation}?radius=50`)
   }
   
   // Try to match city name from providers_raw
@@ -111,86 +127,334 @@ async function searchLocation(formData: FormData) {
   redirect('/pottery-classes')
 }
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ location?: string }>
-}) {
-  const params = await searchParams;
+export default async function SearchPage({ searchParams }: Props) {
+  const params = await searchParams
+  const zip = params.zip as string
+  const radius = (params.radius as string) || '50'
+  const location = params.location as string
+  const error = params.error as string
+
+  // Handle ZIP search results
+  if (zip && /^\d{5}$/.test(zip)) {
+    const supabase = supabaseStatic()
+    
+    // Search for providers with matching ZIP codes
+    const { data: providers, error: dbError } = await supabase
+      .from('providers_raw')
+      .select('id, name, city, state, street, postal_code, phone_number, review_stars, review_count')
+      .eq('postal_code', zip)
+      .order('review_count', { ascending: false, nullsFirst: false })
+      .limit(100)
+
+    if (dbError) {
+      console.error('Database error:', dbError)
+    }
+
+    const studios = (providers || []).map((provider: any) => ({
+      id: provider.id,
+      name: provider.name,
+      provider_slug: slugify(provider.name),
+      city: provider.city,
+      state: provider.state,
+      city_slug: slugify(provider.city),
+      state_slug: getStateSlug(provider.state),
+      distance_miles: 0, // We don't have distance calculation without PostGIS
+      rating: provider.review_stars,
+      review_count: provider.review_count,
+      street: provider.street,
+      zip: provider.postal_code,
+      phone: provider.phone_number,
+    }))
+
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-porcelain to-white">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          {/* Breadcrumb */}
+          <nav className="text-sm mb-6">
+            <Link href="/" className="text-teal hover:text-clay">
+              Home
+            </Link>
+            <span className="mx-2 text-ink/40">/</span>
+            <span className="text-ink">Search Results</span>
+          </nav>
+
+          <h1 className="text-4xl font-bold text-ink mb-6">
+            Pottery Classes near {zip}
+          </h1>
+          
+          {studios.length === 0 ? (
+            <div className="bg-white rounded-xl p-8 text-center">
+              <p className="text-lg text-ink/60 mb-4">
+                No pottery studios found in ZIP code {zip}.
+              </p>
+              <p className="text-ink/50 mb-6">
+                Try searching a different ZIP code or browse by state.
+              </p>
+              <div className="space-y-4">
+                <Link href="/" className="inline-block px-6 py-3 bg-teal text-white rounded-lg hover:bg-clay transition-colors font-medium">
+                  Try Another Search
+                </Link>
+                <div>
+                  <Link href="/pottery-classes" className="text-teal hover:text-clay font-medium">
+                    Browse All States
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-lg text-ink/70 mb-8 max-w-3xl">
+                Found {studios.length} pottery studio{studios.length === 1 ? '' : 's'} in ZIP code {zip}.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {studios.map((studio) => {
+                  const href = `/pottery-classes/${studio.state_slug}/${studio.city_slug}/${studio.provider_slug}`
+
+                  return (
+                    <div key={studio.id} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-sand/20">
+                      <div className="flex justify-between items-start mb-2">
+                        <Link href={href} className="block group flex-1">
+                          <h2 className="text-xl font-semibold text-ink group-hover:text-clay transition-colors">
+                            {studio.name}
+                          </h2>
+                        </Link>
+                      </div>
+                      
+                      <div className="text-ink/60 space-y-1">
+                        {studio.street && (
+                          <p className="text-sm">
+                            {studio.street}, {studio.city}, {studio.state} {studio.zip}
+                          </p>
+                        )}
+                        
+                        {!studio.street && (
+                          <p className="text-sm">
+                            {studio.city}, {studio.state}
+                          </p>
+                        )}
+                        
+                        {studio.phone && (
+                          <p className="text-sm">
+                            <a href={`tel:${studio.phone}`} className="hover:text-teal">
+                              {studio.phone}
+                            </a>
+                          </p>
+                        )}
+                        
+                        {studio.rating != null && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-yellow-500">★</span>
+                            <span className="font-medium text-ink">
+                              {Number(studio.rating).toFixed(1)}
+                            </span>
+                            <span className="text-sm text-ink/50">
+                              ({studio.review_count || 0} review{studio.review_count !== 1 ? 's' : ''})
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <Link
+                        href={href}
+                        className="inline-flex items-center gap-1 mt-4 text-teal hover:text-clay transition-colors text-sm font-medium"
+                      >
+                        View Details
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          {/* Related Links */}
+          <section className="mt-16 pt-12 border-t border-sand/20">
+            <h2 className="text-2xl font-semibold text-ink mb-6">
+              Explore More Pottery Classes
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-medium text-ink mb-3">Popular Cities</h3>
+                <div className="space-y-2">
+                  <Link href="/pottery-classes/ny/new-york" className="block text-teal hover:text-clay">
+                    New York, NY
+                  </Link>
+                  <Link href="/pottery-classes/ca/los-angeles" className="block text-teal hover:text-clay">
+                    Los Angeles, CA
+                  </Link>
+                  <Link href="/pottery-classes/il/chicago" className="block text-teal hover:text-clay">
+                    Chicago, IL
+                  </Link>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-medium text-ink mb-3">Browse by State</h3>
+                <Link href="/pottery-classes" className="text-teal hover:text-clay font-medium">
+                  View all states →
+                </Link>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    )
+  }
   
   // If there's a location in the URL, perform the search immediately
-  if (params.location) {
+  if (location) {
     const formData = new FormData()
-    formData.set('location', params.location)
+    formData.set('location', location)
     await searchLocation(formData)
+  }
+
+  // Handle error messages
+  const errorMessages = {
+    'invalid-zip': 'Please enter a valid 5-digit ZIP code.',
+    'search-failed': 'Search failed. Please try again.',
+    'no-results': `No pottery studios found${zip ? ` in ZIP code ${zip}` : ''}.`,
   }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-porcelain to-white">
-      <div className="mx-auto max-w-2xl px-4 py-20">
-        <h1 className="text-3xl font-bold text-ink text-center mb-8">
-          Search for Pottery Classes
-        </h1>
+      <div className="mx-auto max-w-3xl px-4 py-20">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-ink mb-4">
+            Search for Pottery Classes
+          </h1>
+          <p className="text-lg text-ink/60">
+            Find pottery studios and ceramic workshops near you
+          </p>
+        </div>
         
-        {/* City/State Search */}
-        <div className="mb-12">
-          <h2 className="text-xl font-semibold text-ink mb-4">Search by City or State</h2>
-          <form action={searchLocation} className="space-y-4">
-            <Input
-              name="location"
-              type="text"
-              placeholder="Enter city name or state..."
-              required
-              label="Location"
-              className="text-lg"
-              defaultValue={params.location || ''}
-            />
+        {error && (
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-red-600 text-center">
+              {errorMessages[error as keyof typeof errorMessages] || 'An error occurred. Please try again.'}
+            </p>
+          </div>
+        )}
+        
+        {/* Unified Search Form */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-ink/10 p-8 mb-12">
+          <form action={searchLocation} className="space-y-6">
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-ink mb-2">
+                Enter a location
+              </label>
+              <input
+                id="location"
+                name="location"
+                type="text"
+                placeholder="City, state, or 5-digit ZIP code..."
+                required
+                className="w-full px-5 py-3 border border-sand/50 rounded-xl focus:ring-2 focus:ring-teal focus:border-teal outline-none transition-all text-lg"
+                defaultValue={location || ''}
+                autoFocus
+              />
+              <p className="mt-2 text-sm text-ink/50">
+                Examples: "Chicago", "California", "90210"
+              </p>
+            </div>
             
-            <Button type="submit" variant="primary">
-              Search by Location
+            <Button type="submit" variant="primary" className="w-full text-lg py-3">
+              Search Pottery Classes
             </Button>
           </form>
         </div>
 
-        {/* ZIP Code Search */}
-        <div className="mb-12">
-          <h2 className="text-xl font-semibold text-ink mb-4">Search by ZIP Code</h2>
-          <p className="text-ink/60 mb-4">Find pottery studios within a specific radius of your ZIP code.</p>
-          <ZipSearch 
-            defaultRadius={50}
-            initialZip={/^\d{5}$/.test(params.location || '') ? params.location : ''}
-          />
-        </div>
-        
-        <div className="mt-12 text-center">
-          <p className="text-ink/70 mb-4">Or browse by location:</p>
-          <div className="flex justify-center gap-4">
+        {/* Popular Searches */}
+        <div className="bg-white/50 rounded-xl p-8">
+          <h2 className="text-xl font-semibold text-ink mb-6 text-center">
+            Popular Searches
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="font-medium text-ink mb-4">Major Cities</h3>
+              <div className="space-y-2">
+                <Link 
+                  href="/pottery-classes/ny/new-york" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → New York, NY
+                </Link>
+                <Link 
+                  href="/pottery-classes/ca/los-angeles" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → Los Angeles, CA
+                </Link>
+                <Link 
+                  href="/pottery-classes/il/chicago" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → Chicago, IL
+                </Link>
+                <Link 
+                  href="/pottery-classes/tx/houston" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → Houston, TX
+                </Link>
+                <Link 
+                  href="/pottery-classes/fl/miami" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → Miami, FL
+                </Link>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-medium text-ink mb-4">Popular States</h3>
+              <div className="space-y-2">
+                <Link 
+                  href="/pottery-classes/state/ca" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → California
+                </Link>
+                <Link 
+                  href="/pottery-classes/state/ny" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → New York
+                </Link>
+                <Link 
+                  href="/pottery-classes/state/tx" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → Texas
+                </Link>
+                <Link 
+                  href="/pottery-classes/state/fl" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → Florida
+                </Link>
+                <Link 
+                  href="/pottery-classes/state/il" 
+                  className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
+                >
+                  → Illinois
+                </Link>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-8 pt-6 border-t border-sand/20 text-center">
             <Link 
               href="/pottery-classes"
-              className="text-teal hover:text-clay transition-colors"
+              className="inline-flex items-center gap-2 text-teal hover:text-clay font-medium transition-colors"
             >
-              All Cities
-            </Link>
-            <span className="text-ink/40">•</span>
-            <Link 
-              href="/pottery-classes/state/ca"
-              className="text-teal hover:text-clay transition-colors"
-            >
-              California
-            </Link>
-            <span className="text-ink/40">•</span>
-            <Link 
-              href="/pottery-classes/state/ny"
-              className="text-teal hover:text-clay transition-colors"
-            >
-              New York
-            </Link>
-            <span className="text-ink/40">•</span>
-            <Link 
-              href="/pottery-classes/state/tx"
-              className="text-teal hover:text-clay transition-colors"
-            >
-              Texas
+              Browse All Locations
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
           </div>
         </div>

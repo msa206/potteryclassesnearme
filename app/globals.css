@@ -10,9 +10,51 @@
 }
 
 @layer base {
+  :root {
+    --font-serif: var(--font-bree-serif), 'Bree Serif', serif;
+    --font-sans: var(--font-manrope), 'Manrope', sans-serif;
+  }
+
   html, body {
     background: var(--color-porcelain);
     color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-weight: 400;
+  }
+  
+  /* Headings use Bree Serif - the friendly rounded slab serif */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 400; /* Bree Serif only has regular weight but it's already bold-looking */
+    letter-spacing: -0.01em;
+  }
+  
+  /* Button and CTA text should use Manrope with heavier weight */
+  button, .btn, [type="submit"] {
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+  
+  /* Utility classes for font families */
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+  
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+  
+  /* Font weight utilities for Manrope */
+  .font-normal {
+    font-weight: 400;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  .font-bold {
+    font-weight: 700;
   }
 
   /* Custom color utilities */

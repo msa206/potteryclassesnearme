@@ -4,7 +4,7 @@ import Script from "next/script";
 import { getCity, getProviderBySlugs } from "@/lib/queries";
 import { formatWorkingHours } from "@/lib/formatHours";
 
-export const revalidate = 60 * 60; // ISR: 1 hour
+export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ state: string; city: string; studio: string }> };
 

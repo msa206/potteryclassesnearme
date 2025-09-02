@@ -4,33 +4,32 @@ import { supabaseStatic } from "@/lib/db";
 export async function GET() {
   const supabase = supabaseStatic();
   
-  // Get all unique states from cities table
-  const { data: citiesData, error: citiesError } = await supabase
-    .from('cities_new')
-    .select('state, state_slug')
+  // Get all unique states from providers_raw table
+  const { data: providersData, error: providersError } = await supabase
+    .from('providers_raw')
+    .select('state')
     .order('state');
   
-  if (citiesError) {
-    return NextResponse.json({ error: citiesError.message }, { status: 500 });
+  if (providersError) {
+    return NextResponse.json({ error: providersError.message }, { status: 500 });
   }
   
   // Deduplicate states
-  const uniqueStates = citiesData ? Array.from(new Set(citiesData.map(c => c.state))).map(state => {
-    const stateData = citiesData.find(c => c.state === state);
-    return { state, state_slug: stateData?.state_slug };
-  }).filter(s => s.state && s.state_slug) : [];
+  const uniqueStates = providersData ? Array.from(new Set(providersData.map((p: any) => p.state))).map((state: string) => {
+    return { state };
+  }).filter((s: { state: string }) => s.state) : [];
   
-  // Also get count of cities per state
+  // Also get count of providers per state
   const stateCounts: Record<string, number> = {};
-  citiesData?.forEach(city => {
-    stateCounts[city.state] = (stateCounts[city.state] || 0) + 1;
+  providersData?.forEach((provider: any) => {
+    stateCounts[provider.state] = (stateCounts[provider.state] || 0) + 1;
   });
   
   return NextResponse.json({
-    totalCities: citiesData?.length || 0,
+    totalProviders: providersData?.length || 0,
     totalStates: uniqueStates.length,
     states: uniqueStates,
-    citiesPerState: stateCounts,
-    rawData: citiesData?.slice(0, 10) // First 10 cities for debugging
+    providersPerState: stateCounts,
+    rawData: providersData?.slice(0, 10) // First 10 providers for debugging
   });
 }

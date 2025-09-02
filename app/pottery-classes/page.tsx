@@ -6,8 +6,7 @@ import { slugify, getStateSlug } from '@/lib/slugify'
 import Button from '@/components/Button'
 import HomepageSearch from '@/components/HomepageSearch'
 
-export const dynamic = 'force-static'
-export const revalidate = 86400 // 24h ISR
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Find Pottery Classes Near You | Nationwide Directory',
@@ -35,7 +34,7 @@ export default async function PotteryClassesHub() {
   
   // Create unique cities list with state info and count providers
   const citiesMap = new Map()
-  providersData?.forEach(p => {
+  providersData?.forEach((p: any) => {
     if (p.city && p.state) {
       const citySlug = slugify(p.city)
       const stateSlug = getStateSlug(p.state)
@@ -66,7 +65,7 @@ export default async function PotteryClassesHub() {
 
   // Create unique states list with provider counts
   const statesMap = new Map()
-  providersData?.forEach(p => {
+  providersData?.forEach((p: any) => {
     if (p.state) {
       const stateSlug = getStateSlug(p.state)
       if (!statesMap.has(stateSlug)) {

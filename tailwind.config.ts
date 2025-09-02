@@ -14,6 +14,10 @@ export default {
       },
       borderColor: {
         DEFAULT: '#CBBBA0'     // sand as default border
+      },
+      fontFamily: {
+        serif: ['var(--font-bree-serif)', '"Bree Serif"', 'serif'],
+        sans: ['var(--font-manrope)', 'Manrope', 'sans-serif'],
       }
     }
   },

@@ -8,7 +8,12 @@
       "Read(C:\\Users\\pablo\\Downloads/**)",
       "Read(C:\\Users\\pablo\\Downloads/**)",
       "Bash(git add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npm run check:no-client:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

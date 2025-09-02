@@ -1,6 +1,22 @@
 import type { Metadata, Viewport } from "next";
 import Link from 'next/link';
+import { Bree_Serif, Manrope } from 'next/font/google';
 import "./globals.css";
+
+// Configure fonts
+const breeSerif = Bree_Serif({
+  subsets: ['latin'],
+  weight: ['400'], // Bree Serif only comes in regular weight
+  variable: '--font-bree-serif',
+  display: 'swap',
+});
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-manrope',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -46,13 +62,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" className={`${breeSerif.variable} ${manrope.variable}`}>
+      <body className="antialiased font-sans">
         <header className="bg-white border-b border-sand">
           <nav className="mx-auto max-w-6xl px-4 py-4">
             <div className="flex items-center justify-between">
-              <Link href="/" className="text-2xl font-bold text-clay">
-                Pottery Classes
+              <Link href="/" className="text-2xl font-bold text-clay font-serif">
+                Local Pottery Classes
               </Link>
               <div className="flex gap-6">
                 <Link href="/" className="text-teal hover:text-clay transition-colors">

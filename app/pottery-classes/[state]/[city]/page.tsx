@@ -4,7 +4,7 @@ import { getCity, listProvidersForCity } from "@/lib/queries";
 import { slugify } from "@/lib/slugify";
 import { formatHoursCompact } from "@/lib/formatHours";
 
-export const revalidate = 60 * 60; // ISR: 1 hour
+export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ state: string; city: string }> };
 
@@ -84,7 +84,7 @@ export default async function CityPage({ params }: Props) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {providers.map((provider) => (
+            {providers.map((provider: any) => (
               <div key={provider.id} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-sand/20">
                 <Link
                   href={`/pottery-classes/${city.state_slug}/${city.city_slug}/${slugify(provider.name)}`}

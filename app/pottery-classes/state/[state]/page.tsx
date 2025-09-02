@@ -2,8 +2,9 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { supabaseStatic } from "@/lib/db";
 import { slugify, getStateSlug } from "@/lib/slugify";
+import { getNearbyStates } from "@/lib/nearbyStates";
 
-export const revalidate = 60 * 60; // ISR: 1 hour
+export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ state: string }> };
 
@@ -60,7 +61,7 @@ export default async function StatePage({ params }: Props) {
   const citiesMap = new Map();
   let providerCount = 0;
   
-  providersData?.forEach(p => {
+  providersData?.forEach((p: any) => {
     const pStateSlug = getStateSlug(p.state);
     if (pStateSlug === stateSlug) {
       providerCount++;
@@ -138,18 +139,57 @@ export default async function StatePage({ params }: Props) {
           </div>
         )}
 
-        {/* Related States */}
+        {/* Nearby States */}
         <section className="mt-16 pt-12 border-t border-sand/20">
           <h2 className="text-2xl font-semibold text-ink mb-6">
-            Explore Other States
+            Pottery Classes in Nearby States
           </h2>
-          <p className="text-ink/60 mb-6">
-            Looking for pottery classes in other states? Browse our nationwide directory to find 
-            ceramic studios and workshops across the country.
-          </p>
-          <Link href="/pottery-classes" className="text-teal hover:text-clay font-medium">
-            View all states →
-          </Link>
+          {(() => {
+            const nearbyStatesList = getNearbyStates(stateSlug);
+            if (nearbyStatesList.length === 0) {
+              return (
+                <div>
+                  <p className="text-ink/60 mb-6">
+                    Explore pottery classes across the United States.
+                  </p>
+                  <Link href="/pottery-classes" className="text-teal hover:text-clay font-medium">
+                    View all states →
+                  </Link>
+                </div>
+              );
+            }
+            return (
+              <>
+                <p className="text-ink/60 mb-6">
+                  Continue exploring pottery studios and ceramic workshops in states neighboring {stateName}.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                  {nearbyStatesList.map((nearbyState) => (
+                    <Link
+                      key={nearbyState.slug}
+                      href={`/pottery-classes/state/${nearbyState.slug}`}
+                      className="block group"
+                    >
+                      <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 border border-sand/20 group-hover:border-teal/30">
+                        <h3 className="font-medium text-ink group-hover:text-teal transition-colors">
+                          {nearbyState.name}
+                        </h3>
+                        <div className="flex items-center gap-1 mt-2 text-teal/60 group-hover:text-teal transition-colors text-sm">
+                          View studios
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <Link href="/pottery-classes" className="text-teal hover:text-clay font-medium">
+                  Browse all states →
+                </Link>
+              </>
+            );
+          })()}
         </section>
       </div>
     </main>
