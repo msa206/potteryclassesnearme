@@ -66,12 +66,13 @@ npm run check:no-client # Verify no "use client" directives exist
 
 ```
 /                                       (Landing + global search)
-/pottery-classes/                       (National directory)
-/pottery-classes/state/[state]/         (State listings)
+/pottery-classes/                       (States hub page)
+/pottery-classes/[state]/               (State listings - uses full state slugs like "california", "new-york")
 /pottery-classes/zip/[zip]/             (ZIP code listings)
 /pottery-classes/[state]/[city]/        (City listings)
 /pottery-classes/[state]/[city]/[studio]/ (Studio detail page)
-/search                                 (Search results)
+/all-cities                             (A-Z city directory)
+/search                                 (Search results - noindex)
 /api/search/by-zip                      (ZIP search API)
 /api/debug-states                       (Debug endpoint)
 ```

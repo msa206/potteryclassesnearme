@@ -3,7 +3,7 @@ import { supabaseStatic } from '@/lib/db'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = supabaseStatic()
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://potteryclasses.com'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://localpotteryclasses.com'
   
   // Get all providers from providers_raw
   const providersResult = await supabase
@@ -65,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // State pages
   uniqueStates.forEach(stateSlug => {
     urls.push({
-      url: `${baseUrl}/pottery-classes/state/${stateSlug}`,
+      url: `${baseUrl}/pottery-classes/${stateSlug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,

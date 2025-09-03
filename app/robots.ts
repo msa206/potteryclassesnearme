@@ -40,7 +40,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
     ],
-    sitemap: 'https://potteryclasses.com/sitemap.xml',
-    host: 'https://potteryclasses.com',
+    sitemap: 'https://localpotteryclasses.com/sitemap.xml',
+    host: 'https://localpotteryclasses.com',
   }
 }

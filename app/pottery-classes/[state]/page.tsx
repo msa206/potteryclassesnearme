@@ -1,37 +1,22 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { supabaseStatic } from "@/lib/db";
-import { slugify, getStateSlug } from "@/lib/slugify";
+import { slugify, getStateSlug, getStateNameFromSlug } from "@/lib/slugify";
 import { getNearbyStates } from "@/lib/nearbyStates";
+import stateContent from "@/lib/stateContent";
 
 export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ state: string }> };
 
-// Map state slugs back to full names
-const stateNames: Record<string, string> = {
-  'al': 'Alabama', 'ak': 'Alaska', 'az': 'Arizona', 'ar': 'Arkansas',
-  'ca': 'California', 'co': 'Colorado', 'ct': 'Connecticut', 'de': 'Delaware',
-  'fl': 'Florida', 'ga': 'Georgia', 'hi': 'Hawaii', 'id': 'Idaho',
-  'il': 'Illinois', 'in': 'Indiana', 'ia': 'Iowa', 'ks': 'Kansas',
-  'ky': 'Kentucky', 'la': 'Louisiana', 'me': 'Maine', 'md': 'Maryland',
-  'ma': 'Massachusetts', 'mi': 'Michigan', 'mn': 'Minnesota', 'ms': 'Mississippi',
-  'mo': 'Missouri', 'mt': 'Montana', 'ne': 'Nebraska', 'nv': 'Nevada',
-  'nh': 'New Hampshire', 'nj': 'New Jersey', 'nm': 'New Mexico', 'ny': 'New York',
-  'nc': 'North Carolina', 'nd': 'North Dakota', 'oh': 'Ohio', 'ok': 'Oklahoma',
-  'or': 'Oregon', 'pa': 'Pennsylvania', 'ri': 'Rhode Island', 'sc': 'South Carolina',
-  'sd': 'South Dakota', 'tn': 'Tennessee', 'tx': 'Texas', 'ut': 'Utah',
-  'vt': 'Vermont', 'va': 'Virginia', 'wa': 'Washington', 'wv': 'West Virginia',
-  'wi': 'Wisconsin', 'wy': 'Wyoming', 'dc': 'District of Columbia'
-};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { state: stateSlug } = await params;
-  const stateName = stateNames[stateSlug] || stateSlug.toUpperCase();
+  const stateName = getStateNameFromSlug(stateSlug);
   
   const title = `Pottery Classes in ${stateName} | Find Ceramic Studios`;
   const description = `Browse pottery studios and ceramic workshops across ${stateName}. Find wheel throwing, hand-building, and glazing classes in cities throughout the state.`;
-  const canonical = `https://potteryclasses.com/pottery-classes/state/${stateSlug}/`;
+  const canonical = `https://localpotteryclasses.com/pottery-classes/${stateSlug}/`;
   
   return { 
     title, 
@@ -47,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StatePage({ params }: Props) {
   const { state: stateSlug } = await params;
-  const stateName = stateNames[stateSlug] || stateSlug.toUpperCase();
+  const stateName = getStateNameFromSlug(stateSlug);
   
   const supabase = supabaseStatic();
   
@@ -89,8 +74,8 @@ export default async function StatePage({ params }: Props) {
       <div className="mx-auto max-w-6xl px-4 py-12">
         {/* Breadcrumb */}
         <nav className="text-sm mb-6">
-          <Link href="/pottery-classes" className="text-teal hover:text-clay">
-            All States
+          <Link href="/" className="text-teal hover:text-clay">
+            Home
           </Link>
           <span className="mx-2 text-ink/40">/</span>
           <span className="text-ink">{stateName}</span>
@@ -139,6 +124,9 @@ export default async function StatePage({ params }: Props) {
           </div>
         )}
 
+        {/* State-specific pottery content - 350 words max per state */}
+        {stateContent[stateSlug]}
+
         {/* Nearby States */}
         <section className="mt-16 pt-12 border-t border-sand/20">
           <h2 className="text-2xl font-semibold text-ink mb-6">
@@ -167,7 +155,7 @@ export default async function StatePage({ params }: Props) {
                   {nearbyStatesList.map((nearbyState) => (
                     <Link
                       key={nearbyState.slug}
-                      href={`/pottery-classes/state/${nearbyState.slug}`}
+                      href={`/pottery-classes/${nearbyState.slug}`}
                       className="block group"
                     >
                       <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 border border-sand/20 group-hover:border-teal/30">

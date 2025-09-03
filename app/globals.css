@@ -11,8 +11,8 @@
 
 @layer base {
   :root {
-    --font-serif: var(--font-bree-serif), 'Bree Serif', serif;
-    --font-sans: var(--font-manrope), 'Manrope', sans-serif;
+    --font-serif: var(--font-montserrat), 'Montserrat', sans-serif;
+    --font-sans: var(--font-source-sans-3), 'Source Sans 3', sans-serif;
   }
 
   html, body {
@@ -22,14 +22,14 @@
     font-weight: 400;
   }
   
-  /* Headings use Bree Serif - the friendly rounded slab serif */
+  /* Headings use Montserrat */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-serif);
-    font-weight: 400; /* Bree Serif only has regular weight but it's already bold-looking */
+    font-weight: 600;
     letter-spacing: -0.01em;
   }
   
-  /* Button and CTA text should use Manrope with heavier weight */
+  /* Button and CTA text should use Source Sans 3 with heavier weight */
   button, .btn, [type="submit"] {
     font-family: var(--font-sans);
     font-weight: 600;
@@ -44,7 +44,7 @@
     font-family: var(--font-sans);
   }
   
-  /* Font weight utilities for Manrope */
+  /* Font weight utilities for Source Sans 3 */
   .font-normal {
     font-weight: 400;
   }

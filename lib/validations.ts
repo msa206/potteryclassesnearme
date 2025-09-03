@@ -169,7 +169,7 @@ export const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url('Invalid Supabase URL'),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'Supabase anon key is required'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'Supabase service role key is required'),
-  NEXT_PUBLIC_SITE_URL: z.string().url('Invalid site URL').default('https://potteryclasses.com'),
+  NEXT_PUBLIC_SITE_URL: z.string().url('Invalid site URL').default('https://localpotteryclasses.com'),
 })
 
 // Helper functions for validation

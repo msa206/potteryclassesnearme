@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import { getCity, getProviderBySlugs } from "@/lib/queries";
+import { getStateNameFromSlug } from "@/lib/slugify";
 import { formatWorkingHours } from "@/lib/formatHours";
 
 export const dynamic = 'force-dynamic'
@@ -13,9 +14,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const studio = await getProviderBySlugs(state, city, studioSlug);
   if (!studio) return { title: "Studio not found" };
 
-  const title = `${studio.name} - Pottery Classes in ${studio.city}, ${studio.state}`;
-  const description = `${studio.name} offers pottery classes in ${studio.city}, ${studio.state}. Address: ${studio.street}. Learn wheel throwing, hand-building, and ceramic techniques.`;
-  const canonical = `https://potteryclasses.com/pottery-classes/${state}/${city}/${studioSlug}/`;
+  const stateName = getStateNameFromSlug(state);
+  const title = `${studio.name} - Pottery Classes in ${studio.city}, ${stateName}`;
+  const description = `${studio.name} offers pottery classes in ${studio.city}, ${stateName}. Address: ${studio.street}. Learn wheel throwing, hand-building, and ceramic techniques.`;
+  const canonical = `https://localpotteryclasses.com/pottery-classes/${state}/${city}/${studioSlug}/`;
   
   return { 
     title, 
@@ -58,7 +60,7 @@ export default async function StudioPage({ params }: Props) {
       "@type": "PostalAddress",
       "streetAddress": studio.street,
       "addressLocality": studio.city,
-      "addressRegion": studio.state,
+      "addressRegion": getStateNameFromSlug(city.state_slug),
       "postalCode": studio.zip,
       "addressCountry": "US"
     },
@@ -91,12 +93,12 @@ export default async function StudioPage({ params }: Props) {
       <div className="mx-auto max-w-4xl px-4 py-12">
         {/* Breadcrumb */}
         <nav className="text-sm mb-6">
-          <Link href="/pottery-classes" className="text-teal hover:text-clay">
-            All Cities
+          <Link href="/" className="text-teal hover:text-clay">
+            Home
           </Link>
           <span className="mx-2 text-ink/40">/</span>
-          <Link href={`/pottery-classes/state/${city.state_slug}`} className="text-teal hover:text-clay">
-            {city.state}
+          <Link href={`/pottery-classes/${city.state_slug}`} className="text-teal hover:text-clay">
+            {getStateNameFromSlug(city.state_slug)}
           </Link>
           <span className="mx-2 text-ink/40">/</span>
           <Link href={`/pottery-classes/${city.state_slug}/${city.city_slug}`} className="text-teal hover:text-clay">
@@ -144,7 +146,7 @@ export default async function StudioPage({ params }: Props) {
               </svg>
               <div>
                 <p className="font-medium">{studio.street}</p>
-                <p>{studio.city}, {studio.state} {studio.zip}</p>
+                <p>{studio.city}, {getStateNameFromSlug(city.state_slug)} {studio.zip}</p>
               </div>
             </div>
 
@@ -274,7 +276,7 @@ export default async function StudioPage({ params }: Props) {
             About {studio.name}
           </h2>
           <p className="text-ink/70 leading-relaxed">
-            {studio.name} is a pottery studio located in {studio.city}, {studio.state}. 
+            {studio.name} is a pottery studio located in {studio.city}, {getStateNameFromSlug(city.state_slug)}. 
             They offer a variety of ceramic classes and workshops for all skill levels, 
             from beginner wheel throwing to advanced glazing techniques. Whether you're 
             looking to explore a new hobby or refine your pottery skills, {studio.name} 

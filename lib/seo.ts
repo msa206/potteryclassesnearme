@@ -72,7 +72,7 @@ export function buildDescription({ type, city, state, count, studioName }: Build
 
 // Canonical URL builder
 export function canonicalFor({ pathname, searchParams }: CanonicalParams): string {
-  const baseUrl = 'https://potteryclasses.com'
+  const baseUrl = 'https://localpotteryclasses.com'
   let url = baseUrl + pathname
   
   // Only include certain search params in canonical URL
@@ -212,8 +212,8 @@ export const jsonLd = {
     '@type': 'Organization',
     name: 'Pottery Classes Near Me',
     description: 'Find pottery classes, ceramic workshops, and clay studios across the United States',
-    url: 'https://potteryclasses.com',
-    logo: 'https://potteryclasses.com/logo.png',
+    url: 'https://localpotteryclasses.com',
+    logo: 'https://localpotteryclasses.com/logo.png',
     sameAs: []
   }),
 
@@ -222,11 +222,11 @@ export const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Pottery Classes Near Me',
-    url: 'https://potteryclasses.com',
+    url: 'https://localpotteryclasses.com',
     description: 'Find pottery classes, ceramic workshops, and clay studios across the United States',
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://potteryclasses.com/search?location={search_term_string}',
+      target: 'https://localpotteryclasses.com/search?location={search_term_string}',
       'query-input': 'required name=search_term_string'
     }
   })

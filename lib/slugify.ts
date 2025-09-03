@@ -15,30 +15,53 @@ export function slugify(text: string | null | undefined): string {
 export function getStateSlug(state: string | null | undefined): string {
   if (!state) return '';
   
-  // Map of state names to abbreviations
-  const stateAbbreviations: Record<string, string> = {
-    'alabama': 'al', 'alaska': 'ak', 'arizona': 'az', 'arkansas': 'ar',
-    'california': 'ca', 'colorado': 'co', 'connecticut': 'ct', 'delaware': 'de',
-    'florida': 'fl', 'georgia': 'ga', 'hawaii': 'hi', 'idaho': 'id',
-    'illinois': 'il', 'indiana': 'in', 'iowa': 'ia', 'kansas': 'ks',
-    'kentucky': 'ky', 'louisiana': 'la', 'maine': 'me', 'maryland': 'md',
-    'massachusetts': 'ma', 'michigan': 'mi', 'minnesota': 'mn', 'mississippi': 'ms',
-    'missouri': 'mo', 'montana': 'mt', 'nebraska': 'ne', 'nevada': 'nv',
-    'new hampshire': 'nh', 'new jersey': 'nj', 'new mexico': 'nm', 'new york': 'ny',
-    'north carolina': 'nc', 'north dakota': 'nd', 'ohio': 'oh', 'oklahoma': 'ok',
-    'oregon': 'or', 'pennsylvania': 'pa', 'rhode island': 'ri', 'south carolina': 'sc',
-    'south dakota': 'sd', 'tennessee': 'tn', 'texas': 'tx', 'utah': 'ut',
-    'vermont': 'vt', 'virginia': 'va', 'washington': 'wa', 'west virginia': 'wv',
-    'wisconsin': 'wi', 'wyoming': 'wy', 'district of columbia': 'dc', 'dc': 'dc'
-  };
-  
   const stateLower = state.toLowerCase().trim();
   
-  // If it's already a 2-letter abbreviation, return it
-  if (stateLower.length === 2) {
-    return stateLower;
+  // Map of abbreviations to full state slugs
+  const abbrevToFullSlug: Record<string, string> = {
+    'al': 'alabama', 'ak': 'alaska', 'az': 'arizona', 'ar': 'arkansas',
+    'ca': 'california', 'co': 'colorado', 'ct': 'connecticut', 'de': 'delaware',
+    'fl': 'florida', 'ga': 'georgia', 'hi': 'hawaii', 'id': 'idaho',
+    'il': 'illinois', 'in': 'indiana', 'ia': 'iowa', 'ks': 'kansas',
+    'ky': 'kentucky', 'la': 'louisiana', 'me': 'maine', 'md': 'maryland',
+    'ma': 'massachusetts', 'mi': 'michigan', 'mn': 'minnesota', 'ms': 'mississippi',
+    'mo': 'missouri', 'mt': 'montana', 'ne': 'nebraska', 'nv': 'nevada',
+    'nh': 'new-hampshire', 'nj': 'new-jersey', 'nm': 'new-mexico', 'ny': 'new-york',
+    'nc': 'north-carolina', 'nd': 'north-dakota', 'oh': 'ohio', 'ok': 'oklahoma',
+    'or': 'oregon', 'pa': 'pennsylvania', 'ri': 'rhode-island', 'sc': 'south-carolina',
+    'sd': 'south-dakota', 'tn': 'tennessee', 'tx': 'texas', 'ut': 'utah',
+    'vt': 'vermont', 'va': 'virginia', 'wa': 'washington', 'wv': 'west-virginia',
+    'wi': 'wisconsin', 'wy': 'wyoming', 'dc': 'district-of-columbia'
+  };
+  
+  // If it's a 2-letter abbreviation, convert to full slug
+  if (stateLower.length === 2 && abbrevToFullSlug[stateLower]) {
+    return abbrevToFullSlug[stateLower];
   }
   
-  // Otherwise, try to find the abbreviation
-  return stateAbbreviations[stateLower] || slugify(state);
+  // Otherwise, slugify the full state name
+  return slugify(state);
+}
+
+// Map state slugs back to full state names
+export function getStateNameFromSlug(slug: string): string {
+  const slugToName: Record<string, string> = {
+    'alabama': 'Alabama', 'alaska': 'Alaska', 'arizona': 'Arizona', 'arkansas': 'Arkansas',
+    'california': 'California', 'colorado': 'Colorado', 'connecticut': 'Connecticut', 'delaware': 'Delaware',
+    'florida': 'Florida', 'georgia': 'Georgia', 'hawaii': 'Hawaii', 'idaho': 'Idaho',
+    'illinois': 'Illinois', 'indiana': 'Indiana', 'iowa': 'Iowa', 'kansas': 'Kansas',
+    'kentucky': 'Kentucky', 'louisiana': 'Louisiana', 'maine': 'Maine', 'maryland': 'Maryland',
+    'massachusetts': 'Massachusetts', 'michigan': 'Michigan', 'minnesota': 'Minnesota', 'mississippi': 'Mississippi',
+    'missouri': 'Missouri', 'montana': 'Montana', 'nebraska': 'Nebraska', 'nevada': 'Nevada',
+    'new-hampshire': 'New Hampshire', 'new-jersey': 'New Jersey', 'new-mexico': 'New Mexico', 'new-york': 'New York',
+    'north-carolina': 'North Carolina', 'north-dakota': 'North Dakota', 'ohio': 'Ohio', 'oklahoma': 'Oklahoma',
+    'oregon': 'Oregon', 'pennsylvania': 'Pennsylvania', 'rhode-island': 'Rhode Island', 'south-carolina': 'South Carolina',
+    'south-dakota': 'South Dakota', 'tennessee': 'Tennessee', 'texas': 'Texas', 'utah': 'Utah',
+    'vermont': 'Vermont', 'virginia': 'Virginia', 'washington': 'Washington', 'west-virginia': 'West Virginia',
+    'wisconsin': 'Wisconsin', 'wyoming': 'Wyoming', 'district-of-columbia': 'District of Columbia'
+  };
+  
+  return slugToName[slug] || slug.split('-').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
 }

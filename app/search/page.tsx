@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { supabaseStatic } from '@/lib/db'
-import { slugify, getStateSlug } from '@/lib/slugify'
+import { slugify, getStateSlug, getStateNameFromSlug } from '@/lib/slugify'
 import Button from '@/components/Button'
 
 export const dynamic = 'force-dynamic'
@@ -119,7 +119,7 @@ async function searchLocation(formData: FormData) {
     const stateData = stateResult.data as { state_slug: string } | null
     
     if (stateData) {
-      redirect(`/pottery-classes/state/${stateSlug}`)
+      redirect(`/pottery-classes/${stateSlug}`)
     }
   }
   
@@ -224,13 +224,13 @@ export default async function SearchPage({ searchParams }: Props) {
                       <div className="text-ink/60 space-y-1">
                         {studio.street && (
                           <p className="text-sm">
-                            {studio.street}, {studio.city}, {studio.state} {studio.zip}
+                            {studio.street}, {studio.city}, {getStateNameFromSlug(studio.state_slug)} {studio.zip}
                           </p>
                         )}
                         
                         {!studio.street && (
                           <p className="text-sm">
-                            {studio.city}, {studio.state}
+                            {studio.city}, {getStateNameFromSlug(studio.state_slug)}
                           </p>
                         )}
                         
@@ -323,7 +323,7 @@ export default async function SearchPage({ searchParams }: Props) {
       <div className="mx-auto max-w-3xl px-4 py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-ink mb-4">
-            Search for Pottery Classes
+            Search for Pottery Classes Near You
           </h1>
           <p className="text-lg text-ink/60">
             Find pottery studios and ceramic workshops near you
@@ -377,31 +377,31 @@ export default async function SearchPage({ searchParams }: Props) {
               <h3 className="font-medium text-ink mb-4">Major Cities</h3>
               <div className="space-y-2">
                 <Link 
-                  href="/pottery-classes/ny/new-york" 
+                  href="/pottery-classes/new-york/new-york" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → New York, NY
                 </Link>
                 <Link 
-                  href="/pottery-classes/ca/los-angeles" 
+                  href="/pottery-classes/california/los-angeles" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → Los Angeles, CA
                 </Link>
                 <Link 
-                  href="/pottery-classes/il/chicago" 
+                  href="/pottery-classes/illinois/chicago" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → Chicago, IL
                 </Link>
                 <Link 
-                  href="/pottery-classes/tx/houston" 
+                  href="/pottery-classes/texas/houston" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → Houston, TX
                 </Link>
                 <Link 
-                  href="/pottery-classes/fl/miami" 
+                  href="/pottery-classes/florida/miami" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → Miami, FL
@@ -413,31 +413,31 @@ export default async function SearchPage({ searchParams }: Props) {
               <h3 className="font-medium text-ink mb-4">Popular States</h3>
               <div className="space-y-2">
                 <Link 
-                  href="/pottery-classes/state/ca" 
+                  href="/pottery-classes/california" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → California
                 </Link>
                 <Link 
-                  href="/pottery-classes/state/ny" 
+                  href="/pottery-classes/new-york" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → New York
                 </Link>
                 <Link 
-                  href="/pottery-classes/state/tx" 
+                  href="/pottery-classes/texas" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → Texas
                 </Link>
                 <Link 
-                  href="/pottery-classes/state/fl" 
+                  href="/pottery-classes/florida" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → Florida
                 </Link>
                 <Link 
-                  href="/pottery-classes/state/il" 
+                  href="/pottery-classes/illinois" 
                   className="block text-teal hover:text-clay transition-colors hover:translate-x-1 transform duration-200"
                 >
                   → Illinois

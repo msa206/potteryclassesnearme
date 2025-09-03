@@ -100,31 +100,31 @@ export default function NotFound() {
                 <h4 className="font-semibold text-ink mb-3">By State</h4>
                 <div className="space-y-2">
                   <Link
-                    href="/pottery-classes/state/ca"
+                    href="/pottery-classes/california"
                     className="block text-teal hover:text-clay transition-colors"
                   >
                     California
                   </Link>
                   <Link
-                    href="/pottery-classes/state/ny"
+                    href="/pottery-classes/new-york"
                     className="block text-teal hover:text-clay transition-colors"
                   >
                     New York
                   </Link>
                   <Link
-                    href="/pottery-classes/state/tx"
+                    href="/pottery-classes/texas"
                     className="block text-teal hover:text-clay transition-colors"
                   >
                     Texas
                   </Link>
                   <Link
-                    href="/pottery-classes/state/fl"
+                    href="/pottery-classes/florida"
                     className="block text-teal hover:text-clay transition-colors"
                   >
                     Florida
                   </Link>
                   <Link
-                    href="/pottery-classes/state/wa"
+                    href="/pottery-classes/washington"
                     className="block text-teal hover:text-clay transition-colors"
                   >
                     Washington
