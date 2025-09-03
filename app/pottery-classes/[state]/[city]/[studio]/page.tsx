@@ -15,9 +15,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!studio) return { title: "Studio not found" };
 
   const stateName = getStateNameFromSlug(state);
-  const title = `${studio.name} - Pottery Classes in ${studio.city}, ${stateName}`;
+  const title = `Pottery Classes at ${studio.name}`;
   const description = `${studio.name} offers pottery classes in ${studio.city}, ${stateName}. Address: ${studio.street}. Learn wheel throwing, hand-building, and ceramic techniques.`;
-  const canonical = `https://localpotteryclasses.com/pottery-classes/${state}/${city}/${studioSlug}/`;
+  const canonical = `https://localpotteryclasses.com/pottery-classes/${state}/${city}/${studioSlug}`;
   
   return { 
     title, 

@@ -32,14 +32,14 @@ export function buildTitle({ type, city, state, page, studioName }: BuildTitlePa
       if (page && page > 1) title += ` - Page ${page}`
       break
     case 'state':
-      title = `Pottery Classes in ${state} | Find Ceramic Studios`
+      title = `Pottery Classes in ${state} | Local Pottery Studios`
       break
     case 'studio':
-      title = `${studioName} - Pottery Classes in ${city}, ${state}`
+      title = `Pottery Classes at ${studioName}`
       break
     case 'home':
     default:
-      title = 'Find Pottery Classes Near You | Nationwide Directory'
+      title = 'Pottery Classes Near You | Local Pottery Classes Directory'
       break
   }
   
@@ -93,8 +93,8 @@ export function canonicalFor({ pathname, searchParams }: CanonicalParams): strin
     }
   }
   
-  // Ensure trailing slash for directory pages
-  if (!pathname.includes('.') && !url.endsWith('/')) {
+  // Only add trailing slash for root domain
+  if (pathname === '' && !url.endsWith('/')) {
     url += '/'
   }
   

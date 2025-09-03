@@ -14,9 +14,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { state: stateSlug } = await params;
   const stateName = getStateNameFromSlug(stateSlug);
   
-  const title = `Pottery Classes in ${stateName} | Find Ceramic Studios`;
+  const title = `Pottery Classes in ${stateName} | Local Pottery Studios`;
   const description = `Browse pottery studios and ceramic workshops across ${stateName}. Find wheel throwing, hand-building, and glazing classes in cities throughout the state.`;
-  const canonical = `https://localpotteryclasses.com/pottery-classes/${stateSlug}/`;
+  const canonical = `https://localpotteryclasses.com/pottery-classes/${stateSlug}`;
   
   return { 
     title, 

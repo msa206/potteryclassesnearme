@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Pottery Classes by State | Browse All States',
   description: 'Find pottery classes, ceramic workshops, and clay studios in all 50 states. Browse our complete directory organized by state.',
-  alternates: { canonical: 'https://localpotteryclasses.com/pottery-classes/' },
+  alternates: { canonical: 'https://localpotteryclasses.com/pottery-classes' },
   openGraph: {
     title: 'Pottery Classes by State | Browse All States',
     description: 'Find pottery classes and ceramic workshops in all 50 states.',
