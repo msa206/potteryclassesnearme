@@ -8,11 +8,11 @@ import HomepageSearch from '@/components/HomepageSearch'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Pottery Classes Near You | Local Pottery Classes Directory',
+  title: 'Find Pottery Classes Near You | LocalPotteryClasses.com',
   description: 'Discover pottery classes, ceramic workshops, and clay studios across the United States. Find wheel throwing, hand-building, and glazing classes near you.',
   alternates: { canonical: 'https://localpotteryclasses.com/' },
   openGraph: {
-    title: 'Pottery Classes Near You | Local Pottery Classes Directory',
+    title: 'Find Pottery Classes Near You | LocalPotteryClasses.com',
     description: 'Discover pottery classes, ceramic workshops, and clay studios across the United States.',
     type: 'website',
   },

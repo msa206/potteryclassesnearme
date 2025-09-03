@@ -28,7 +28,7 @@ export function buildTitle({ type, city, state, page, studioName }: BuildTitlePa
   
   switch (type) {
     case 'city':
-      title = `Pottery Classes in ${city}, ${state}`
+      title = `Local Pottery Classes in ${city}, ${state}`
       if (page && page > 1) title += ` - Page ${page}`
       break
     case 'state':
@@ -39,7 +39,7 @@ export function buildTitle({ type, city, state, page, studioName }: BuildTitlePa
       break
     case 'home':
     default:
-      title = 'Pottery Classes Near You | Local Pottery Classes Directory'
+      title = 'Find Pottery Classes Near You | LocalPotteryClasses.com'
       break
   }
   

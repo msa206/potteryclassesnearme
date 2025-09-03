@@ -19,10 +19,7 @@ const sourceSans3 = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Find Pottery Classes Near You | Nationwide Directory",
-    template: "%s | Pottery Classes Directory"
-  },
+  title: "Find Pottery Classes Near You | LocalPotteryClasses.com",
   description: "Discover pottery classes, ceramic workshops, and clay studios across the United States. Find wheel throwing, hand-building, and glazing classes near you.",
   keywords: "pottery classes, ceramic workshops, clay studios, wheel throwing, hand-building, glazing, pottery near me",
   authors: [{ name: "Pottery Classes Directory" }],
