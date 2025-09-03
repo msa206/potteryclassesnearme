@@ -8,7 +8,7 @@ export default function HomepageSearch() {
         <input
           type="text"
           name="location"
-          placeholder="Enter city, state, or ZIP code..."
+          placeholder="Search by zip code..."
           className="flex-1 px-6 py-4 text-lg bg-transparent outline-none placeholder:text-ink/40"
           required
         />
@@ -21,7 +21,7 @@ export default function HomepageSearch() {
         </Button>
       </div>
       <p className="text-xs text-white/80 mt-2 text-center">
-        Search by city name, state, or 5-digit ZIP code
+        Search by zipcode (e.g. 90210, 10001, 60601)
       </p>
     </form>
   );

@@ -323,10 +323,10 @@ export default async function SearchPage({ searchParams }: Props) {
       <div className="mx-auto max-w-3xl px-4 py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-ink mb-4">
-            Search for Pottery Classes Near You
+            Search by Zipcode
           </h1>
           <p className="text-lg text-ink/60">
-            Find pottery studios and ceramic workshops near you
+            Find pottery studios and ceramic workshops by zipcode
           </p>
         </div>
         
@@ -343,20 +343,20 @@ export default async function SearchPage({ searchParams }: Props) {
           <form action={searchLocation} className="space-y-6">
             <div>
               <label htmlFor="location" className="block text-sm font-medium text-ink mb-2">
-                Enter a location
+                Enter a zipcode
               </label>
               <input
                 id="location"
                 name="location"
                 type="text"
-                placeholder="City, state, or 5-digit ZIP code..."
+                placeholder="Enter 5-digit ZIP code..."
                 required
                 className="w-full px-5 py-3 border border-sand/50 rounded-xl focus:ring-2 focus:ring-teal focus:border-teal outline-none transition-all text-lg"
                 defaultValue={location || ''}
                 autoFocus
               />
               <p className="mt-2 text-sm text-ink/50">
-                Examples: "Chicago", "California", "90210"
+                Examples: "90210", "10001", "60601"
               </p>
             </div>
             
