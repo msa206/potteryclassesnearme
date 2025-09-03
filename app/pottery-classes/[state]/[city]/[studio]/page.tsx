@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import { getCity, getProviderBySlugs } from "@/lib/queries";
-import { getStateNameFromSlug } from "@/lib/slugify";
+import { getStateNameFromSlug, getStateAbbreviation } from "@/lib/slugify";
 import { formatWorkingHours } from "@/lib/formatHours";
 
 export const dynamic = 'force-dynamic'
@@ -15,8 +15,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!studio) return { title: "Studio not found" };
 
   const stateName = getStateNameFromSlug(state);
+  const stateAbbrev = getStateAbbreviation(stateName);
   const title = `Pottery Classes at ${studio.name}`;
-  const description = `${studio.name} offers pottery classes in ${studio.city}, ${stateName}. Address: ${studio.street}. Learn wheel throwing, hand-building, and ceramic techniques.`;
+  
+  // Random description formats
+  const descriptions = [
+    `${studio.name} offers pottery classes in ${studio.city}, ${stateAbbrev}. Learn beginner pottery now.`,
+    `${studio.name} offers pottery classes in ${studio.city}, ${stateAbbrev}. Beginner pottery classes available.`,
+    `${studio.name} offers pottery classes in ${studio.city}, ${stateAbbrev}. Learn pottery and have fun.`
+  ];
+  
+  // Use studio name hash to consistently pick same description for same studio
+  const hash = studio.name.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+  const description = descriptions[hash % descriptions.length];
+  
   const canonical = `https://localpotteryclasses.com/pottery-classes/${state}/${city}/${studioSlug}`;
   
   return { 
