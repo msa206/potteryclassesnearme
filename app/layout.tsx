@@ -23,6 +23,20 @@ export const metadata: Metadata = {
   description: "Discover pottery classes, ceramic workshops, and clay studios across the United States. Find wheel throwing, hand-building, and glazing classes near you.",
   keywords: "pottery classes, ceramic workshops, clay studios, wheel throwing, hand-building, glazing, pottery near me",
   authors: [{ name: "Pottery Classes Directory" }],
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' }
+    ],
+    apple: '/apple-touch-icon.png',
+    other: [
+      {
+        rel: 'manifest',
+        url: '/site.webmanifest'
+      }
+    ]
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

@@ -24,7 +24,7 @@ const PAGE_SPECIFIC_DATES: Record<string, Date> = {
   // 'new-york/new-york-city': new Date('2025-09-04'),
   
   // Studio pages - use "state-slug/city-slug/studio-slug"
-  '/florida/dunedin/muddy-potter-art-clay-studio': new Date('2025-09-04'),
+  'florida/dunedin/muddy-potter-art-clay-studio': new Date('2025-09-04'),
   // 'california/los-angeles/clay-studio-2': new Date('2025-09-04'),
 }
 
