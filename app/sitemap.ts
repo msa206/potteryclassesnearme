@@ -3,6 +3,31 @@ import { getCityProviderCounts, getStateProviderCounts } from '@/lib/queries'
 import { supabaseStatic } from '@/lib/db'
 import { slugify, getStateSlug } from '@/lib/slugify'
 
+// Default last modified date for pages without specific dates
+const DEFAULT_LAST_MODIFIED = new Date('2025-09-03')
+
+// Page-specific last modified dates
+// Add entries here when you edit specific pages
+// Format: 'path' -> new Date('YYYY-MM-DD')
+const PAGE_SPECIFIC_DATES: Record<string, Date> = {
+  // Static pages
+  // '/': new Date('2025-09-04'),
+  // '/pottery-classes': new Date('2025-09-04'),
+  // '/all-cities': new Date('2025-09-04'),
+  
+  // State pages - use state slug
+  // 'california': new Date('2025-09-04'),
+  // 'new-york': new Date('2025-09-04'),
+  
+  // City pages - use "state-slug/city-slug"
+  // 'california/los-angeles': new Date('2025-09-04'),
+  // 'new-york/new-york-city': new Date('2025-09-04'),
+  
+  // Studio pages - use "state-slug/city-slug/studio-slug"
+  '/florida/dunedin/muddy-potter-art-clay-studio': new Date('2025-09-04'),
+  // 'california/los-angeles/clay-studio-2': new Date('2025-09-04'),
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Use localhost for development, production URL for production
   const baseUrl = process.env.NODE_ENV === 'development' 
@@ -15,19 +40,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   sitemap.push(
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: PAGE_SPECIFIC_DATES['/'] || DEFAULT_LAST_MODIFIED,
       changeFrequency: 'daily',
       priority: 1,
     },
     {
       url: `${baseUrl}/pottery-classes`,
-      lastModified: new Date(),
+      lastModified: PAGE_SPECIFIC_DATES['/pottery-classes'] || DEFAULT_LAST_MODIFIED,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/all-cities`,
-      lastModified: new Date(),
+      lastModified: PAGE_SPECIFIC_DATES['/all-cities'] || DEFAULT_LAST_MODIFIED,
       changeFrequency: 'weekly',
       priority: 0.8,
     },
@@ -40,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const [stateSlug, stateData] of stateCountsMap) {
       sitemap.push({
         url: `${baseUrl}/pottery-classes/${stateSlug}`,
-        lastModified: new Date(),
+        lastModified: PAGE_SPECIFIC_DATES[stateSlug] || DEFAULT_LAST_MODIFIED,
         changeFrequency: 'weekly',
         priority: 0.8,
       })
@@ -51,9 +76,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     
     for (const [cityKey, cityData] of cityCountsMap) {
       const { city_slug, state_slug } = cityData as any
+      const cityDateKey = `${state_slug}/${city_slug}`
       sitemap.push({
         url: `${baseUrl}/pottery-classes/${state_slug}/${city_slug}`,
-        lastModified: new Date(),
+        lastModified: PAGE_SPECIFIC_DATES[cityDateKey] || DEFAULT_LAST_MODIFIED,
         changeFrequency: 'weekly',
         priority: 0.7,
       })
@@ -72,10 +98,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           const providerSlug = slugify((provider as any).name)
           const citySlug = slugify((provider as any).city)
           const stateSlug = getStateSlug((provider as any).state)
+          const studioDateKey = `${stateSlug}/${citySlug}/${providerSlug}`
           
           sitemap.push({
             url: `${baseUrl}/pottery-classes/${stateSlug}/${citySlug}/${providerSlug}`,
-            lastModified: new Date(),
+            lastModified: PAGE_SPECIFIC_DATES[studioDateKey] || DEFAULT_LAST_MODIFIED,
             changeFrequency: 'monthly',
             priority: 0.6,
           })
