@@ -13,6 +13,22 @@ export const metadata: Metadata = {
     title: 'Pottery Classes by State | Browse All States',
     description: 'Find pottery classes and ceramic workshops in all 50 states.',
     type: 'website',
+    url: 'https://localpotteryclasses.com/pottery-classes',
+    siteName: 'Local Pottery Classes',
+    images: [
+      {
+        url: 'https://localpotteryclasses.com/localpotteryclasses_socialimage.png',
+        width: 1200,
+        height: 630,
+        alt: 'Pottery Classes Directory',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Pottery Classes by State | Browse All States',
+    description: 'Find pottery classes and ceramic workshops in all 50 states.',
+    images: ['https://localpotteryclasses.com/localpotteryclasses_socialimage.png'],
   },
 }
 

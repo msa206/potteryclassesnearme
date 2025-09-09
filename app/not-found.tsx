@@ -5,6 +5,26 @@ export const metadata: Metadata = {
   title: '404 - Page Not Found | Pottery Classes Near Me',
   description: 'The page you are looking for could not be found. Browse our pottery classes directory to find ceramic studios near you.',
   robots: 'noindex, follow',
+  openGraph: {
+    title: '404 - Page Not Found | Pottery Classes Near Me',
+    description: 'The page you are looking for could not be found. Browse our pottery classes directory to find ceramic studios near you.',
+    type: 'website',
+    siteName: 'Local Pottery Classes',
+    images: [
+      {
+        url: 'https://localpotteryclasses.com/localpotteryclasses_socialimage.png',
+        width: 1200,
+        height: 630,
+        alt: 'Page Not Found',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '404 - Page Not Found | Pottery Classes Near Me',
+    description: 'The page you are looking for could not be found.',
+    images: ['https://localpotteryclasses.com/localpotteryclasses_socialimage.png'],
+  },
 }
 
 export default function NotFound() {

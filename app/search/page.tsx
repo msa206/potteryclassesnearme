@@ -36,6 +36,27 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title: 'Search Pottery Classes',
     description: 'Search for pottery classes by city or ZIP code',
     robots: 'noindex, follow',
+    openGraph: {
+      title: 'Search Pottery Classes',
+      description: 'Search for pottery classes by city or ZIP code',
+      type: 'website',
+      url: 'https://localpotteryclasses.com/search',
+      siteName: 'Local Pottery Classes',
+      images: [
+        {
+          url: 'https://localpotteryclasses.com/localpotteryclasses_socialimage.png',
+          width: 1200,
+          height: 630,
+          alt: 'Search Pottery Classes',
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Search Pottery Classes',
+      description: 'Search for pottery classes by city or ZIP code',
+      images: ['https://localpotteryclasses.com/localpotteryclasses_socialimage.png'],
+    },
   }
 }
 

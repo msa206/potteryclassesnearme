@@ -15,6 +15,22 @@ export const metadata: Metadata = {
     title: 'Find Pottery Classes Near You | LocalPotteryClasses.com',
     description: 'Discover pottery classes, ceramic workshops, and clay studios across the United States.',
     type: 'website',
+    url: 'https://localpotteryclasses.com/',
+    siteName: 'Local Pottery Classes',
+    images: [
+      {
+        url: 'https://localpotteryclasses.com/localpotteryclasses_socialimage.png',
+        width: 1200,
+        height: 630,
+        alt: 'Find Pottery Classes Near You',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Find Pottery Classes Near You | LocalPotteryClasses.com',
+    description: 'Discover pottery classes, ceramic workshops, and clay studios across the United States.',
+    images: ['https://localpotteryclasses.com/localpotteryclasses_socialimage.png'],
   },
 }
 

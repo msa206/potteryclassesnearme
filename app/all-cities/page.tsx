@@ -8,10 +8,27 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'All Cities with Pottery Classes | A-Z Directory',
   description: 'Browse our alphabetical directory of cities with pottery classes, ceramic workshops, and clay studios across the United States.',
+  alternates: { canonical: 'https://localpotteryclasses.com/all-cities' },
   openGraph: {
     title: 'All Cities with Pottery Classes | A-Z Directory',
     description: 'Browse our alphabetical directory of cities with pottery classes across the United States.',
     type: 'website',
+    url: 'https://localpotteryclasses.com/all-cities',
+    siteName: 'Local Pottery Classes',
+    images: [
+      {
+        url: 'https://localpotteryclasses.com/localpotteryclasses_socialimage.png',
+        width: 1200,
+        height: 630,
+        alt: 'All Cities with Pottery Classes',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'All Cities with Pottery Classes | A-Z Directory',
+    description: 'Browse our alphabetical directory of cities with pottery classes across the United States.',
+    images: ['https://localpotteryclasses.com/localpotteryclasses_socialimage.png'],
   },
 }
 
