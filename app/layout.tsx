@@ -88,6 +88,9 @@ export default function RootLayout({
                 <Link href="/search" className="text-teal hover:text-clay transition-colors">
                   Search Pottery Classes
                 </Link>
+                <Link href="/blog" className="text-teal hover:text-clay transition-colors">
+                  Blog
+                </Link>
               </div>
             </div>
           </nav>
@@ -120,6 +123,11 @@ export default function RootLayout({
                   <li>
                     <Link href="/all-cities" className="text-white/80 hover:text-white">
                       Browse by City
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/blog" className="text-white/80 hover:text-white">
+                      Blog
                     </Link>
                   </li>
                 </ul>

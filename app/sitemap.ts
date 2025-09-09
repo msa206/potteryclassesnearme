@@ -15,6 +15,11 @@ const PAGE_SPECIFIC_DATES: Record<string, Date> = {
   // '/pottery-classes': new Date('2025-09-04'),
   // '/all-cities': new Date('2025-09-04'),
   
+  // Blog posts - use "blog/slug"
+  // '/blog': new Date('2025-09-08'), // Blog listing page
+  'blog/raku-pottery': new Date('2025-09-08'),
+  // 'blog/your-next-post-slug': new Date('2025-09-10'),
+  
   // State pages - use state slug
   // 'california': new Date('2025-09-04'),
   // 'new-york': new Date('2025-09-04'),
@@ -55,6 +60,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: PAGE_SPECIFIC_DATES['/all-cities'] || DEFAULT_LAST_MODIFIED,
       changeFrequency: 'weekly',
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: PAGE_SPECIFIC_DATES['/blog'] || DEFAULT_LAST_MODIFIED,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/blog/raku-pottery`,
+      lastModified: PAGE_SPECIFIC_DATES['blog/raku-pottery'] || new Date('2025-09-08'),
+      changeFrequency: 'monthly',
+      priority: 0.6,
     },
   )
 
